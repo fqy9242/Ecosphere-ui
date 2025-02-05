@@ -1,44 +1,36 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户名" prop="username">
+      <el-form-item label="书名" prop="bookName">
         <el-input
-          v-model="queryParams.username"
-          placeholder="请输入用户名"
+          v-model="queryParams.bookName"
+          placeholder="请输入书名"
           clearable
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="手机号" prop="phone">
+      <el-form-item label="书籍作者" prop="bookAuthor">
         <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入手机号"
+          v-model="queryParams.bookAuthor"
+          placeholder="请输入书籍作者"
           clearable
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="邮箱" prop="email">
+      <el-form-item label="作者国籍" prop="authorNationality">
         <el-input
-          v-model="queryParams.email"
-          placeholder="请输入邮箱"
+          v-model="queryParams.authorNationality"
+          placeholder="请输入作者国籍"
           clearable
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="上次登录" prop="lastLoginTime">
-        <el-date-picker clearable
-          v-model="queryParams.lastLoginTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择上次登录">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="注册时间" prop="createTime">
+      <el-form-item label="创建时间" prop="createTime">
         <el-date-picker clearable
           v-model="queryParams.createTime"
           type="date"
           value-format="YYYY-MM-DD"
-          placeholder="请选择注册时间">
+          placeholder="请选择创建时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -54,7 +46,7 @@
           plain
           icon="Plus"
           @click="handleAdd"
-          v-hasPermi="['ecosphere:users:add']"
+          v-hasPermi="['content:recommendedBook:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -64,7 +56,7 @@
           icon="Edit"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['ecosphere:users:edit']"
+          v-hasPermi="['content:recommendedBook:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -74,7 +66,7 @@
           icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['ecosphere:users:remove']"
+          v-hasPermi="['content:recommendedBook:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -83,28 +75,33 @@
           plain
           icon="Download"
           @click="handleExport"
-          v-hasPermi="['ecosphere:users:export']"
+          v-hasPermi="['content:recommendedBook:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="usersList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="recommendedBookList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="用户名" align="center" prop="username" />
-      <el-table-column label="手机号" align="center" prop="phone" />
-      <el-table-column label="邮箱" align="center" prop="email" />
-      <el-table-column label="用户状态" align="center" prop="userStatus" />
-      <el-table-column label="上次登录" align="center" prop="lastLoginTime" width="180">
+      <!-- <el-table-column label="主键" align="center" prop="id" /> -->
+      <el-table-column label="书名" align="center" prop="bookName" />
+      <el-table-column label="书的描述,介绍" align="center" prop="bookDescription" />
+      <el-table-column label="封面" align="center" prop="bookCover" width="100">
         <template #default="scope">
-          <span>{{ parseTime(scope.row.lastLoginTime, '{y}-{m}-{d}') }}</span>
+          <image-preview :src="scope.row.bookCover" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="书籍作者" align="center" prop="bookAuthor" />
+      <el-table-column label="作者国籍" align="center" prop="authorNationality" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['ecosphere:users:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['ecosphere:users:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['content:recommendedBook:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['content:recommendedBook:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -117,20 +114,23 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改注册用户对话框 -->
+    <!-- 添加或修改推荐书籍对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="usersRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名" />
+      <el-form ref="recommendedBookRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="书名" prop="bookName">
+          <el-input v-model="form.bookName" placeholder="请输入书名" />
         </el-form-item>
-        <el-form-item label="登录密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入登录密码" />
+        <el-form-item label="书的描述,介绍" prop="bookDescription">
+          <el-input v-model="form.bookDescription" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        <el-form-item label="封面" prop="bookCover">
+          <image-upload v-model="form.bookCover"/>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入邮箱" />
+        <el-form-item label="书籍作者" prop="bookAuthor">
+          <el-input v-model="form.bookAuthor" placeholder="请输入书籍作者" />
+        </el-form-item>
+        <el-form-item label="作者国籍" prop="authorNationality">
+          <el-input v-model="form.authorNationality" placeholder="请输入作者国籍" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -143,12 +143,12 @@
   </div>
 </template>
 
-<script setup name="Users">
-import { listUsers, getUsers, delUsers, addUsers, updateUsers } from "@/api/ecosphere/users";
+<script setup name="RecommendedBook">
+import { listRecommendedBook, getRecommendedBook, delRecommendedBook, addRecommendedBook, updateRecommendedBook } from "@/api/content/recommendedBook";
 
 const { proxy } = getCurrentInstance();
 
-const usersList = ref([]);
+const recommendedBookList = ref([]);
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -163,36 +163,32 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    username: null,
-    phone: null,
-    email: null,
-    userStatus: null,
-    lastLoginTime: null,
+    bookName: null,
+    bookDescription: null,
+    bookAuthor: null,
+    authorNationality: null,
     createTime: null,
   },
   rules: {
-    username: [
-      { required: true, message: "用户名不能为空", trigger: "blur" }
+    bookName: [
+      { required: true, message: "书名不能为空", trigger: "blur" }
     ],
-    password: [
-      { required: true, message: "登录密码不能为空", trigger: "blur" }
+    bookAuthor: [
+      { required: true, message: "书籍作者不能为空", trigger: "blur" }
     ],
     createTime: [
-      { required: true, message: "注册时间不能为空", trigger: "blur" }
+      { required: true, message: "创建时间不能为空", trigger: "blur" }
     ],
-    updateTime: [
-      { required: true, message: "信息更新时间不能为空", trigger: "blur" }
-    ]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询注册用户列表 */
+/** 查询推荐书籍列表 */
 function getList() {
   loading.value = true;
-  listUsers(queryParams.value).then(response => {
-    usersList.value = response.rows;
+  listRecommendedBook(queryParams.value).then(response => {
+    recommendedBookList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
@@ -208,17 +204,16 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
-    username: null,
-    password: null,
-    phone: null,
-    email: null,
-    picture: null,
-    userStatus: null,
-    lastLoginTime: null,
+    bookName: null,
+    bookDescription: null,
+    bookCover: null,
+    bookAuthor: null,
+    authorNationality: null,
+    bookType: null,
     createTime: null,
     updateTime: null
   };
-  proxy.resetForm("usersRef");
+  proxy.resetForm("recommendedBookRef");
 }
 
 /** 搜索按钮操作 */
@@ -244,32 +239,32 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset();
   open.value = true;
-  title.value = "添加注册用户";
+  title.value = "添加推荐书籍";
 }
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
   const _id = row.id || ids.value
-  getUsers(_id).then(response => {
+  getRecommendedBook(_id).then(response => {
     form.value = response.data;
     open.value = true;
-    title.value = "修改注册用户";
+    title.value = "修改推荐书籍";
   });
 }
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["usersRef"].validate(valid => {
+  proxy.$refs["recommendedBookRef"].validate(valid => {
     if (valid) {
       if (form.value.id != null) {
-        updateUsers(form.value).then(response => {
+        updateRecommendedBook(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addUsers(form.value).then(response => {
+        addRecommendedBook(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -282,8 +277,8 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除注册用户编号为"' + _ids + '"的数据项？').then(function() {
-    return delUsers(_ids);
+  proxy.$modal.confirm('是否确认删除推荐书籍编号为"' + _ids + '"的数据项？').then(function() {
+    return delRecommendedBook(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -292,9 +287,9 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('ecosphere/users/export', {
+  proxy.download('content/recommendedBook/export', {
     ...queryParams.value
-  }, `users_${new Date().getTime()}.xlsx`)
+  }, `recommendedBook_${new Date().getTime()}.xlsx`)
 }
 
 getList();

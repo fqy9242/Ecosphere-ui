@@ -2,30 +2,15 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="标题" prop="title">
-        <el-input
-          v-model="queryParams.title"
-          placeholder="请输入标题"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.title" placeholder="请输入标题" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态" prop="photoStatus">
-        <el-select v-model="queryParams.photoStatus" placeholder="请选择状态" clearable>
-          <el-option
-            v-for="dict in silder_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+        <el-select v-model="queryParams.photoStatus" placeholder="请选择状态" clearable style="width: 139px;">
+          <el-option v-for="dict in silder_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="描述" prop="photoDesc">
-        <el-input
-          v-model="queryParams.photoDesc"
-          placeholder="请输入描述"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.photoDesc" placeholder="请输入描述" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -35,58 +20,36 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['user:indexSlider:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd"
+          v-hasPermi="['content:indexSlider:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['user:indexSlider:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['content:indexSlider:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['user:indexSlider:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['content:indexSlider:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['user:indexSlider:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport"
+          v-hasPermi="['content:indexSlider:export']">导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="indexSliderList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
+      <!-- <el-table-column label="主键" align="center" prop="id" /> -->
       <el-table-column label="标题" align="center" prop="title" />
-      <el-table-column label="轮播图url" align="center" prop="photo" width="100">
+      <el-table-column label="图片" align="center" prop="photo" width="100">
         <template #default="scope">
-          <image-preview :src="scope.row.photo" :width="50" :height="50"/>
+          <image-preview :src="scope.row.photo" :width="50" :height="50" />
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="photoStatus">
         <template #default="scope">
-          <dict-tag :options="silder_status" :value="scope.row.photoStatus"/>
+          <dict-tag :options="silder_status" :value="scope.row.photoStatus" />
         </template>
       </el-table-column>
       <el-table-column label="描述" align="center" prop="photoDesc" />
@@ -102,19 +65,16 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['user:indexSlider:edit']">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['user:indexSlider:remove']">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['content:indexSlider:edit']">修改</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['content:indexSlider:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+
+    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改首页轮播图对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -123,7 +83,7 @@
           <el-input v-model="form.title" placeholder="请输入标题" />
         </el-form-item>
         <el-form-item label="轮播图url" prop="photo">
-          <image-upload v-model="form.photo"/>
+          <image-upload v-model="form.photo" />
         </el-form-item>
         <el-form-item label="描述" prop="photoDesc">
           <el-input v-model="form.photoDesc" placeholder="请输入描述" />
@@ -140,7 +100,7 @@
 </template>
 
 <script setup name="IndexSlider">
-import { listIndexSlider, getIndexSlider, delIndexSlider, addIndexSlider, updateIndexSlider } from "@/api/user/indexSlider";
+import { listIndexSlider, getIndexSlider, delIndexSlider, addIndexSlider, updateIndexSlider } from "@/api/content/indexSlider";
 
 const { proxy } = getCurrentInstance();
 const { silder_status } = proxy.useDict('silder_status');
@@ -170,7 +130,7 @@ const data = reactive({
       { required: true, message: "标题不能为空", trigger: "blur" }
     ],
     photo: [
-      { required: true, message: "轮播图url不能为空", trigger: "blur" }
+      { required: true, message: "轮播图不能为空", trigger: "blur" }
     ],
     createTime: [
       { required: true, message: "创建时间不能为空", trigger: "blur" }
@@ -281,7 +241,7 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('user/indexSlider/export', {
+  proxy.download('content/indexSlider/export', {
     ...queryParams.value
   }, `indexSlider_${new Date().getTime()}.xlsx`)
 }

@@ -5,5 +5,7 @@
 <script setup>
 import iFrame from '@/components/iFrame'
 
-const url = ref(import.meta.env.VITE_APP_BASE_API + "/swagger-ui/index.html")
+// const url = ref(import.meta.env.VITE_APP_BASE_API + "/swagger-ui/index.html")
+// 使用knife4f提供的前端页面
+const url = ref(import.meta.env.VITE_APP_BASE_API + "/doc.html")
 </script>

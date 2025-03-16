@@ -131,7 +131,6 @@ import { getGenTable, updateGenTable } from "@/api/tool/gen";
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
 import basicInfoForm from "./basicInfoForm";
 import genInfoForm from "./genInfoForm";
-
 const route = useRoute();
 const { proxy } = getCurrentInstance();
 
@@ -176,7 +175,6 @@ function getFormPromise(form) {
     });
   });
 }
-
 function close() {
   const obj = { path: "/tool/gen", query: { t: Date.now(), pageNum: route.query.pageNum } };
   proxy.$tab.closeOpenPage(obj);

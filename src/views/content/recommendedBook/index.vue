@@ -85,7 +85,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <!-- <el-table-column label="主键" align="center" prop="id" /> -->
       <el-table-column label="书名" align="center" prop="bookName" />
-      <el-table-column label="书的描述,介绍" align="center" prop="bookDescription" />
+      <el-table-column label="书籍介绍" align="center" prop="bookDescription" />
       <el-table-column label="封面" align="center" prop="bookCover" width="100">
         <template #default="scope">
           <image-preview :src="scope.row.bookCover" :width="50" :height="50"/>
@@ -120,7 +120,7 @@
         <el-form-item label="书名" prop="bookName">
           <el-input v-model="form.bookName" placeholder="请输入书名" />
         </el-form-item>
-        <el-form-item label="书的描述,介绍" prop="bookDescription">
+        <el-form-item label="书籍介绍" prop="bookDescription">
           <el-input v-model="form.bookDescription" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="封面" prop="bookCover">

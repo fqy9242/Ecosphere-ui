@@ -6,11 +6,13 @@
       </el-form-item>
       <el-form-item label="状态" prop="photoStatus">
         <el-select v-model="queryParams.photoStatus" placeholder="请选择状态" clearable style="width: 139px;">
-          <el-option v-for="dict in silder_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          <el-option v-for="dict in silder_status" :key="dict.dictValue" :label="dict.dictLabel"
+            :value="dict.dictValue" />
         </el-select>
       </el-form-item>
       <el-form-item label="描述" prop="photoDesc">
-        <el-input v-model="queryParams.photoDesc" placeholder="请输入描述" clearable @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.photoDesc" placeholder="请输入描述" clearable
+          @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -82,11 +84,16 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入标题" />
         </el-form-item>
-        <el-form-item label="轮播图url" prop="photo">
+        <el-form-item label="图片" prop="photo">
           <image-upload v-model="form.photo" />
         </el-form-item>
         <el-form-item label="描述" prop="photoDesc">
-          <el-input v-model="form.photoDesc" placeholder="请输入描述" />
+          <el-input type="textarea" v-model="form.photoDesc" placeholder="请输入描述" />
+        </el-form-item>
+        <el-form-item label="状态" prop="photoStatus">
+          <el-select v-model="form.photoStatus" placeholder="请选择状态" clearable>
+            <el-option v-for="dict in silder_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -201,9 +208,10 @@ function handleUpdate(row) {
   reset();
   const _id = row.id || ids.value
   getIndexSlider(_id).then(response => {
+    response.data.photoStatus = String(response.data.photoStatus);
     form.value = response.data;
     open.value = true;
-    title.value = "修改首页轮播图";
+    title.value = "修改轮播图信息";
   });
 }
 
